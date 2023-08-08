@@ -35,20 +35,22 @@
         .then((json) => {
 
             console.log(json[0])
-            let j = json[0]
-            document.getElementById('bookings').innerHTML += 
-            `<results-sect> <listing-detail>
-                Id: ` +  j['id'] + `
-                <br>
-                Type: ` +  j['type'] + `
-                <br>
-                Address: ` +  j['address'] + `
-                <br>
-                <div class="start">Start: ` +  j['start'] + `</div>
+            for (let i in json) {
+                let j = json[i]
+                document.getElementById('bookings').innerHTML += 
+                `<results-sect> <listing-detail>
+                    Id: ` +  j['id'] + `
+                    <br>
+                    Type: ` +  j['type'] + `
+                    <br>
+                    Address: ` +  j['address'] + `
+                    <br>
+                    <div class="start">Start: ` +  j['start'] + `</div>
 
-                End: ` +  j['end'] + ` <br>
-                <button onclick="cancel(this)" id="`+j['id'] + `">Cancel</button>
-            </listing-detail> </results-sect>`
+                    End: ` +  j['end'] + ` <br>
+                    <button onclick="cancel(this)" id="`+j['id'] + `">Cancel</button> <br> <gap-a></gap-a> <br>
+                </listing-detail> </results-sect>`
+            }
         })
 
         function cancel(e) {
