@@ -1,0 +1,79 @@
+body {
+    margin: 0;
+    display: grid;
+    grid-template-columns: 200px min-content;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+main {
+    padding: 10px;
+    width: max-content;
+}
+
+side-bar {
+    display: flex;
+    flex-direction: column;  
+    padding: 10px;
+    gap: 10px;
+    font-size: 18px;
+}
+
+side-bar a:hover {
+    background: linear-gradient(#ededed, #ededed);
+}
+
+a {
+    text-decoration: none;
+    color: black;
+}
+
+input {
+    margin-bottom: 8px;
+}
+
+button {
+    font-size: 15px;
+    margin-top: 5px;
+}
+
+#notif {
+    color: red;
+}
+
+#noti {
+    color: red;
+}
+
+avail-container {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.ui-datepicker-year{
+    display: none;
+}
+
+results-container {
+    display: flex;
+    flex-direction: column;
+}
+
+listing-a {
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+}
+
+results-sect {
+    margin-bottom: 10px;
+}
+
+results-sect:hover {
+    background-color: #eee;
+    cursor: pointer;
+}
+
+gap-a {
+    height: 10px;
+}

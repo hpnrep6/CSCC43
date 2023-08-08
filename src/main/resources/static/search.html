@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyBnB</title>
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <side-bar id="sidebar">
+
+    </side-bar>
+    <main>
+        <h2>
+            Search by coordinates
+        </h2>
+
+        <label>Latitude</label>
+        <input type="number" id="lat">
+        <label>Longitude</label>
+        <input type="number" id="long">
+        <br>
+        <label> Distance (in Coordinates):</label>
+        <input type="number" id="distance">
+        
+        <button onclick="searchCoords()">Search</button>
+        <br>
+
+        <h2>
+            Search by postal code
+        </h2>
+        <label>Postal Code</label>
+        <input id="postal"> 
+        <button onclick="searchPostal()">Search</button>
+        <h2>
+            Search by address
+        </h2>
+        <label>Address</label>
+        <input id="address"> 
+        <button onclick="searchAddress()">Search</button>
+        <h2>
+            Filters
+        </h2>
+        <label>Start Date</label>
+        <input type="date">
+        <label>End Date</label>
+        <input type="date">
+        <br>
+        <label>Min Price: $</label>
+        <input type="number" id="min">
+        <label>Max Price: $</label>
+        <input type="number" id="max">
+
+        <br>
+
+        <h1>
+            Results
+        </h1>
+        <results-container id="results">
+
+        </results-container>
+
+    </main>
+    <script>
+        function searchPostal() {
+            fetch('/api/search/postal', {
+                method: 'POST',
+                body: JSON.stringify({
+                    'postal': getVal('postal'),
+                }),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            }).then((res) => res.json())
+            .then((json) => {
+                document.getElementById('results').innerHTML = ''
+
+                for (i in json) {
+                    let j = json[i]
+                    document.getElementById('results').innerHTML += `
+                    <results-sect id=` + json[i]['id'] + ` onclick="openListing(this)">
+                        ` + `<listing-detail>
+                            Id: ` +  j['id'] + `
+                            <br>
+                            Type: ` +  j['type'] + `
+                            <br>
+                            Address: ` +  j['address'] + `
+                            <br>
+                            City: ` +  j['city'] + `
+                            <br>
+                            Country: ` +  j['country'] + `
+                            <br>
+                            Latitude: ` +  j['latitude'] + `
+                            <br>
+                            Longitude: ` +  j['longitude'] + ` 
+                            <br>
+                            Max Guests: ` +  j['max_guests'] + `
+                            <br>
+                            Postal Code: ` +  j['postal_code'] + `
+                            <br>
+                        </listing-detail>` + `
+                    </results-sect>
+                    `
+                }
+
+                
+            })
+        }
+
+        function searchCoords() {
+            fetch('/api/search/coords', {
+                method: 'POST',
+                body: JSON.stringify({
+                    'lat': getVal('lat'),
+                    'long': getVal('long'),
+                    'distance': getVal('distance')
+                }),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            }).then((res) => res.json())
+            .then((json) => {
+                document.getElementById('results').innerHTML = ''
+
+                for (i in json) {
+                    let j = json[i]
+                    document.getElementById('results').innerHTML += `
+                    <results-sect id=` + json[i]['id'] + ` onclick="openListing(this)">
+                        ` + `<listing-detail>
+                            Id: ` +  j['id'] + `
+                            <br>
+                            Type: ` +  j['type'] + `
+                            <br>
+                            Address: ` +  j['address'] + `
+                            <br>
+                            City: ` +  j['city'] + `
+                            <br>
+                            Country: ` +  j['country'] + `
+                            <br>
+                            Latitude: ` +  j['latitude'] + `
+                            <br>
+                            Longitude: ` +  j['longitude'] + ` 
+                            <br>
+                            Max Guests: ` +  j['max_guests'] + `
+                            <br>
+                            Postal Code: ` +  j['postal_code'] + `
+                            <br>
+                        </listing-detail>` + `
+                    </results-sect>
+                    `
+                }
+            })
+        }
+
+        function searchAddress() {
+            fetch('/api/search/address', {
+                method: 'POST',
+                body: JSON.stringify({
+                    'address': getVal('address'),
+                }),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            }).then((res) => res.json())
+            .then((json) => {
+                document.getElementById('results').innerHTML = ''
+
+                for (i in json) {
+                    let j = json[i]
+                    document.getElementById('results').innerHTML += `
+                    <results-sect id=` + json[i]['id'] + ` onclick="openListing(this)">
+                        ` + `<listing-detail>
+                            Id: ` +  j['id'] + `
+                            <br>
+                            Type: ` +  j['type'] + `
+                            <br>
+                            Address: ` +  j['address'] + `
+                            <br>
+                            City: ` +  j['city'] + `
+                            <br>
+                            Country: ` +  j['country'] + `
+                            <br>
+                            Latitude: ` +  j['latitude'] + `
+                            <br>
+                            Longitude: ` +  j['longitude'] + ` 
+                            <br>
+                            Max Guests: ` +  j['max_guests'] + `
+                            <br>
+                            Postal Code: ` +  j['postal_code'] + `
+                            <br>
+                        </listing-detail>` + `
+                    </results-sect>
+                    `
+                }
+            })
+        }
+
+        function openListing(e) {
+            window.open('/listing.html?id=' + e.id)
+        }
+    </script>
+    <script src="sidebar.js"></script>
+  </body>
+</html>

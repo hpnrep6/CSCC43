@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyBnB</title>
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <side-bar id="sidebar">
+
+    </side-bar>
+    <main>
+        <h1>
+            My Listings
+        </h1>
+
+        <listing-a id="listings">
+            
+        </listing-a>
+    </main>
+    <script src="sidebar.js"></script>
+    <script>
+        fetch('/api/listings/get', {
+            method: 'POST',
+            body: JSON.stringify({
+                'user': getUsername(),
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        }).then((res) => res.json())
+        .then((json) => {
+            document.getElementById('listings').innerHTML = ''
+
+            for (i in json) {
+                let j = json[i]
+                document.getElementById('listings').innerHTML += `
+                <results-sect>
+                    ` + `<listing-detail class="lss" id=` + json[i]['id'] + ` onclick="openListing(this)">
+                        Id: ` +  j['id'] + `
+                        <br>
+                        Type: ` +  j['type'] + `
+                        <br>
+                        Address: ` +  j['address'] + `
+                        <br>
+                        City: ` +  j['city'] + `
+                        <br>
+                        Country: ` +  j['country'] + `
+                        <br>
+                        Latitude: ` +  j['latitude'] + `
+                        <br>
+                        Longitude: ` +  j['longitude'] + ` 
+                        <br>
+                        Max Guests: ` +  j['max_guests'] + `
+                        <br>
+                        Postal Code: ` +  j['postal_code'] + `
+                        <br>
+                    </listing-detail>` + `
+                    <button onclick="openGuest(this)">View as Guest</button>
+                </results-sect>
+                `
+            }
+
+            
+        })
+
+        function openGuest(e) {
+            let i = e.parentNode.getElementsByClassName("lss")[0].id
+            console.log(i)
+            window.open('/listing.html?id=' + i)
+        }
+        function openListing(e) {
+            window.open('/managelisting.html?id=' + e.id)
+        }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyBnB</title>
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <side-bar id="sidebar">
+
+    </side-bar>
+    <main>
+        <h1>
+            Create a listing
+        </h1>
+        <br>
+        <label>Type: </label>
+        <select id="type"></select>
+        <br>
+        <label>Location: </label>
+        Latitude
+        <input id="lat" type="number">
+        Longitude
+        <input id="long" type="number">
+        <br>
+        <label>Address: </label>
+        <input id="address">
+        <br>
+        <label>Postal Code: </label>
+        <input id="postal-code">
+        <br>
+        <label>City: </label>
+        <input id="city">
+        <br>
+        <label>Country: </label>
+        <input id="country">
+        <br>
+        <label>Max Guests: </label>
+        <input id="max-guests" type="number" oninput="this.value = Math.abs(this.value)">
+        <br>
+        Availability:
+        <br>
+        <avail-container id="avail-container">
+            <avail-section class="avail-section">
+                From
+                <input type="date" class="from">
+                to
+                <input type="date" class="to">
+                for $
+                <input class="price" type="number" oninput="this.value = Math.abs(this.value)">
+                <button onclick="addDate(this)" id="add-date">Add</button>
+            </avail-section>
+        </avail-container>
+        <br>
+        <label id="notif"></label>
+        <button onclick="create()">Create Listing</button>
+
+        <script>
+            let idCounter = 0
+            let dates = []
+
+            fetch('/api/listingtypes/get', {
+                method: 'GET'
+            }).then((res) => res.json())
+            .then((json) => {
+                console.log(json)
+                for (let i in json['types']) {
+                    document.getElementById('type').add(
+                        new Option(json['types'][i], json['types'][i]), undefined
+                    )
+                    
+                }
+            })
+
+            class DateRange {
+                start
+                end
+                price
+                id
+
+                constructor(s, e, p) {
+                    this.start = s
+                    this.end = e 
+                    this.price = p
+                    this.id = idCounter++
+                }
+            }
+
+            function create() {
+                fetch('/api/listing/create', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        'type': getVal('type'),
+                        'lat': getVal('lat'),
+                        'long': getVal('long'),
+                        'address': getVal('address'),
+                        'postal-code': getVal('postal-code'),
+                        'city': getVal('city'),
+                        'country': getVal('country'),
+                        'max-guests': getVal('max-guests'),
+                        'user': getUsername(),
+                        'availability': dates
+                    }),
+                    headers: {
+                        "Content-type": "application/json; charset=UTF-8"
+                    }
+                }).then((res) => res.json())
+                .then((json) => {
+                    console.log(json)
+                    if (json['status'] == 'Success') {
+                        window.location = 'login.html'
+                    } else {
+                        document.getElementById('notif').innerHTML = json['status']
+                    }
+                })
+
+            }
+
+            function findMatch(s, e, p) {
+                for (let i = 0; i < dates.length; ++i) {
+                    let d = dates[i]
+                    if (d.start == s && d.end == e && d.price == p) {
+                        return i
+                    }
+                }
+
+                return -1
+            }
+
+            function addDate(e) {
+                let parent = e.parentElement;
+
+                if (
+                    e.parentNode.getElementsByClassName('from')[0].value == '' ||
+                    e.parentNode.getElementsByClassName('to')[0].value == '' ||
+                    e.parentNode.getElementsByClassName('price')[0].value == ''
+                ) {
+                    document.getElementById('notif').innerHTML = 'Enter start date, end date, and price'
+                    return
+                } else {
+                    document.getElementById('notif').innerHTML = ''
+                }
+
+                fromDate = new Date(e.parentNode.getElementsByClassName('from')[0].value)
+                toDate = new Date(e.parentNode.getElementsByClassName('to')[0].value)
+                console.log(fromDate > toDate)
+
+                if (fromDate > toDate) {
+                    document.getElementById('notif').innerHTML = 'Invalid date range'
+                    return 
+                }
+
+                if (e.parentNode.getElementsByClassName('price')[0].value < 0) {
+                    document.getElementById('notif').innerHTML = 'Invalid price'
+                    return
+                }
+
+                for (let i in dates) {
+                    let d = dates[i]
+
+                    dS = new Date(d.start)
+                    dE = new Date(d.end)
+
+
+                    if ((fromDate >= dS && fromDate <= dE) || (toDate >= dS && toDate <= dE)) {
+                        document.getElementById('notif').innerHTML = 'Overlapping dates'
+                        return
+                    }
+                }
+
+                let range = new DateRange(
+                    e.parentNode.getElementsByClassName('from')[0].value,
+                    e.parentNode.getElementsByClassName('to')[0].value,
+                    e.parentNode.getElementsByClassName('price')[0].value
+                )
+
+                dates.push(range)
+
+                e.parentNode.getElementsByClassName('from')[0].readOnly = true
+                e.parentNode.getElementsByClassName('to')[0].readOnly = true
+                e.parentNode.getElementsByClassName('price')[0].readOnly = true
+
+                document.getElementById('add-date').remove()
+
+                parent.innerHTML += `
+                <button onclick="removeDate(this)"> Remove </button>
+                `
+
+                document.getElementById('avail-container').innerHTML += `
+                    <avail-section class="avail-section">
+                        From
+                        <input type="date" class="from">
+                        to
+                        <input type="date" class="to">
+                        for $
+                        <input class="price" type="number">
+                        <button onclick="addDate(this)" id="add-date">Add</button>
+                    </avail-section>
+                `
+                
+                let containers = document.getElementsByClassName('avail-section')
+                
+                let i = 0
+                for (let cur of containers) {
+                    if (i == containers.length - 1) {
+                        break
+                    }
+                    cur.getElementsByClassName('from')[0].value = dates[i].start
+                    cur.getElementsByClassName('to')[0].value = dates[i].end
+                    cur.getElementsByClassName('price')[0].value = dates[i].price
+                    i += 1
+                }
+            }
+
+            function removeDate(e) {
+                let index = findMatch(
+                    e.parentNode.getElementsByClassName('from')[0].value,
+                    e.parentNode.getElementsByClassName('to')[0].value,
+                    e.parentNode.getElementsByClassName('price')[0].value
+                )
+                
+                if (index != -1) {
+                    dates[index] = dates[dates.length - 1]
+                    dates.pop()
+                }
+
+                e.parentElement.remove()
+
+                let containers = document.getElementsByClassName('avail-section')
+                
+                let i = 0
+                for (let cur of containers) {
+                    if (i == containers.length - 1) {
+                        break
+                    }
+                    cur.getElementsByClassName('from')[0].value = dates[i].start
+                    cur.getElementsByClassName('to')[0].value = dates[i].end
+                    cur.getElementsByClassName('price')[0].value = dates[i].price
+                    i += 1
+                }
+
+                console.log(dates)
+                console.log(index)
+            }
+        </script>
+    </main>
+    <script src="sidebar.js"></script>
+  </body>
+</html>

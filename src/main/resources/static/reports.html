@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyBnB</title>
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <side-bar id="sidebar">
+
+    </side-bar>
+    <main>
+        <h1>
+            Reports
+        </h1>
+
+        <h2>
+            Total bookings by city
+        </h2>
+
+        <div id="city-total-res">
+
+        </div>
+
+        <h2>
+            Total bookings by postal code
+        </h2>
+
+        <div id="postal-total-res">
+
+        </div>
+
+        <h2>
+            Total bookings by country
+        </h2>
+
+        <div id="country-total-res">
+
+        </div>
+
+        <h2>
+            Total bookings by country, city
+        </h2>
+
+        <div id="cc-total-res">
+
+        </div>
+
+        <h2>
+            Total bookings by country, city, postal code
+        </h2>
+
+        <div id="ccc-total-res">
+
+        </div>
+    </main>
+    <script src="sidebar.js"></script>
+    <script>
+        fetch('/api/report/city', {
+            method: 'POST',
+            body: JSON.stringify({
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        }).then((res) => res.json())
+        .then((json) => {
+            for (let i in json) {
+                let j = json[i];
+                document.getElementById('city-total-res').innerHTML += 
+                j['city'] + ': ' + j['count'] + '<br>'
+            }
+        })
+
+        fetch('/api/report/postal', {
+            method: 'POST',
+            body: JSON.stringify({
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        }).then((res) => res.json())
+        .then((json) => {
+            for (let i in json) {
+                let j = json[i];
+                document.getElementById('postal-total-res').innerHTML += 
+                j['city'] + ': ' + j['count'] + '<br>'
+            }
+        })
+
+        fetch('/api/report/country', {
+            method: 'POST',
+            body: JSON.stringify({
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        }).then((res) => res.json())
+        .then((json) => {
+            for (let i in json) {
+                let j = json[i];
+                document.getElementById('country-total-res').innerHTML += 
+                j['city'] + ': ' + j['count'] + '<br>'
+            }
+        })
+
+        fetch('/api/report/countrycity', {
+            method: 'POST',
+            body: JSON.stringify({
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        }).then((res) => res.json())
+        .then((json) => {
+            for (let i in json) {
+                let j = json[i];
+                document.getElementById('cc-total-res').innerHTML += 
+                j['city'] + ': ' + j['count'] + '<br>'
+            }
+        })
+
+        fetch('/api/report/countrycitypostal', {
+            method: 'POST',
+            body: JSON.stringify({
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        }).then((res) => res.json())
+        .then((json) => {
+            for (let i in json) {
+                let j = json[i];
+                document.getElementById('ccc-total-res').innerHTML += 
+                j['city'] + ': ' + j['count'] + '<br>'
+            }
+        })
+    </script>
+  </body>
+</html>

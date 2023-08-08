@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyBnB</title>
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <side-bar id="sidebar">
+
+    </side-bar>
+    <main>
+        <h1>
+            Listing details
+        </h1>
+        <listing-a id="listing">
+
+        </listing-a>
+
+        <h2>
+            Pricing
+        </h2>
+
+        <listing-a id="pricing">
+
+        </listing-a>
+
+        <h2>
+            Book
+        </h2>
+
+        <label>From</label>
+        <input type="date" id="from" oninput="dateUpdate()">
+        <label>to</label>
+        <input type="date" id="to" oninput="dateUpdate()"">
+        <br>
+        <button onclick="book()">Book</button>
+        <br>
+        <label id="notif"></label>
+
+        <h2>
+            Comments
+        </h2>
+
+        <comment-a id="comments">
+
+        </comment-a>
+
+        <label>Add Rating:</label>
+        <br> <gap-a></gap-a> <br>
+        Comment: <input id="comment">
+        <br>
+        Stars: 
+        <input id="stars" type="number" min="0" max="5">
+        <button onclick="createRating()">Submit Rating</button>
+        <br>
+        <label id="noti"></label>
+
+        <script>
+
+            let id = window.location.href.substring(
+                window.location.href.indexOf('?id=') + 4
+            )
+
+            fetch('/api/comment/get', {
+                method: 'POST',
+                body: JSON.stringify({
+                    'id': id,
+                }),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            }).then((res) => res.json())
+            .then((json) => {
+
+                for (let i in json) {
+                    let j = json[i]
+                    document.getElementById('comments').innerHTML += 
+                    `<listing-detail>
+                        Author: ` +  j['author'] + `
+                        <br>
+                        Comment: ` +  j['content'] + `
+                        <br>
+                        Stars: ` +  j['stars'] + `
+                    </listing-detail> <br> <gap-a></gap-a> <br>`
+                }
+            })
+
+            fetch('/api/listing/get', {
+                method: 'POST',
+                body: JSON.stringify({
+                    'id': id,
+                }),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            }).then((res) => res.json())
+            .then((json) => {
+
+                console.log(json[0])
+                let j = json[0]
+                document.getElementById('listing').innerHTML += 
+                `<listing-detail>
+                    Id: ` +  j['id'] + `
+                    <br>
+                    Type: ` +  j['type'] + `
+                    <br>
+                    Address: ` +  j['address'] + `
+                    <br>
+                    City: ` +  j['city'] + `
+                    <br>
+                    Country: ` +  j['country'] + `
+                    <br>
+                    Latitude: ` +  j['latitude'] + `
+                    <br>
+                    Longitude: ` +  j['longitude'] + ` 
+                    <br>
+                    Max Guests: ` +  j['max_guests'] + `
+                    <br>
+                    Postal Code: ` +  j['postal_code'] + `
+                    <br>
+                </listing-detail>`
+            })
+            
+            fetch('/api/listing/pricing', {
+                method: 'POST',
+                body: JSON.stringify({
+                    'id': id,
+                }),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            }).then((res) => res.json())
+            .then((json) => {
+
+                console.log(json[0])
+                for (let i in json) {
+                    let j = json[i]
+                    document.getElementById('pricing').innerHTML += 
+                    `<listing-detail>
+                        From: ` +  j['start'] + `
+                        to ` +  j['end'] + `
+                        : $` +  j['price'] + `
+                        <br> <br>
+                    </listing-detail>`
+                }
+            })
+
+            function book() {
+                fetch('/api/listing/check', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        'id': id,
+                        'start': getVal('from'),
+                        'end': getVal('to')
+                    }),
+                    headers: {
+                        "Content-type": "application/json; charset=UTF-8"
+                    }
+                }).then((res) => res.json())
+                .then((json) => {
+    
+                    if (json['status'] != 'Available') {
+                        document.getElementById('notif').innerHTML = json['status']
+                        return
+                    }
+                    console.log(getUsername())
+                    fetch('/api/booking/create', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            'id': id,
+                            'start': getVal('from'),
+                            'end': getVal('to'),
+                            'user': getUsername()
+                        }),
+                        headers: {
+                            "Content-type": "application/json; charset=UTF-8"
+                        }
+                    }).then((res) => res.json())
+                    .then((json) => {
+        
+                        document.getElementById('notif').innerHTML = json['status']
+                        
+                    })
+                })
+            }
+
+            function createRating() {
+                fetch('/api/listingcomment/create', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        'id': id,
+                        'user': getUsername(),
+                        'stars': getVal('stars'),
+                        'comment': getVal('comment')
+                    }),
+                    headers: {
+                        "Content-type": "application/json; charset=UTF-8"
+                    }
+                }).then((res) => res.json())
+                .then((json) => {
+    
+                    if (json['status'] != 'Success') {
+                        document.getElementById('noti').innerHTML = json['status']
+                        return
+                    } else {
+                        window.location.href = window.location.href
+                    }
+
+                })
+            }
+        </script>
+    </main>
+    <script src="sidebar.js"></script>
+  </body>
+</html>

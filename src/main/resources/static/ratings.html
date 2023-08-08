@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyBnB</title>
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <side-bar id="sidebar">
+
+    </side-bar>
+    <main>
+        <h1 id="title">
+            Ratings for
+        </h1>
+
+        <h2>
+            Comments
+        </h2>
+
+        <comment-a id="comments">
+
+        </comment-a>
+
+        <label>Add Rating:</label>
+        <br> <gap-a></gap-a> <br>
+        Comment: <input id="comment">
+        <br>
+        <button onclick="createRating()">Submit Rating</button>
+        <br>
+        <label id="noti"></label>
+
+    </main>
+    <script src="sidebar.js"></script>
+    <script>
+        let id = window.location.href.substring(
+            window.location.href.indexOf('?id=') + 4
+        )
+
+        document.getElementById('title').innerHTML = 'Ratings for ' + id
+
+        fetch('/api/rating/get', {
+            method: 'POST',
+            body: JSON.stringify({
+                'id': id,
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        }).then((res) => res.json())
+        .then((json) => {
+
+            for (let i in json) {
+                let j = json[i]
+                document.getElementById('comments').innerHTML += 
+                `<listing-detail>
+                    Author: ` +  j['author'] + `
+                    <br>
+                    Comment: ` +  j['content'] + `
+                </listing-detail> <br> <gap-a></gap-a> <br>`
+            }
+        })
+
+        function createRating() {
+            fetch('/api/userrating/create', {
+                method: 'POST',
+                body: JSON.stringify({
+                    'id': id,
+                    'user': getUsername(),
+                    'comment': getVal('comment')
+                }),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            }).then((res) => res.json())
+            .then((json) => {
+
+                if (json['status'] != 'Success') {
+                    document.getElementById('noti').innerHTML = json['status']
+                    return
+                } else {
+                    window.location.href = window.location.href
+                }
+
+            })
+        }
+    </script>
+  </body>
+</html>

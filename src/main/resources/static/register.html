@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyBnB</title>
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <side-bar id="sidebar">
+
+    </side-bar>
+    <main>
+        <h1>Register</h1>
+        <label>Username: </label>
+        <input id="username">
+        <br>
+        <label>Full Name: </label>
+        <input id="name">
+        <br>
+        <label>Address: </label>
+        <input id="address">
+        <br>
+        <label>Date of Birth (yyyy-mm-dd): </label>
+        <input id="date-of-birth">
+        <br>
+        <label>Occupation: </label>
+        <input id="occupation">
+        <br>
+        <label>Social Insurance Number: </label>
+        <input id="sin">
+        <br>
+        <label>Bank Card Number (For renter only): </label>
+        <input id="card-number">
+        <br>
+        <label id="notif"></label>
+        <br>
+        <button onclick="createHost()">Register as Host</button>
+        <button onclick="createHost()">Register as Host and Renter</button>
+
+        <script>
+            let fieldIds = [
+            'username',
+            'name',
+            'address',
+            'date-of-birth',
+            'occupation',
+            'sin']
+
+            function createHost() {
+                for (i in fieldIds) {
+                    if (document.getElementById(fieldIds[i]).value == '') {
+                        document.getElementById('notif').innerHTML = 
+                        'Please enter a(n) ' + fieldIds[i].replace('-', ' ')
+                        return
+                    }
+                }
+
+                fetch('/api/user/create', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        'username': getVal('username'),
+                        'name': getVal('name'),
+                        'address': getVal('address'),
+                        'date-of-birth': getVal('date-of-birth'),
+                        'occupation': getVal('occupation'),
+                        'sin': getVal('sin')
+                    }),
+                    headers: {
+                        "Content-type": "application/json; charset=UTF-8"
+                    }
+                }).then((res) => res.json())
+                .then((json) => {
+                    console.log(json)
+                    if (json['status'] == 'Success') {
+                        window.location = 'login.html'
+                    } else {
+                        document.getElementById('notif').innerHTML = json['status']
+                    }
+                })
+
+            }
+        </script>
+    </main>
+    <script src="sidebar.js"></script>
+  </body>
+</html>

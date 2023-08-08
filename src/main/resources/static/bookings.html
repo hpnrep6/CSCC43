@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyBnB</title>
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <side-bar id="sidebar">
+
+    </side-bar>
+    <main>
+        <h1>
+            My Bookings
+        </h1>
+
+        <booking-a id="bookings">
+
+        </booking-a>
+    </main>
+
+
+    <script src="sidebar.js"></script>
+    <script>
+        fetch('/api/booking/get', {
+            method: 'POST',
+            body: JSON.stringify({
+                'user': getUsername(),
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        }).then((res) => res.json())
+        .then((json) => {
+
+            console.log(json[0])
+            let j = json[0]
+            document.getElementById('bookings').innerHTML += 
+            `<results-sect> <listing-detail>
+                Id: ` +  j['id'] + `
+                <br>
+                Type: ` +  j['type'] + `
+                <br>
+                Address: ` +  j['address'] + `
+                <br>
+                <div class="start">Start: ` +  j['start'] + `</div>
+
+                End: ` +  j['end'] + ` <br>
+                <button onclick="cancel(this)" id="`+j['id'] + `">Cancel</button>
+            </listing-detail> </results-sect>`
+        })
+
+        function cancel(e) {
+            console.log(e.parentNode.getElementsByClassName('start')[0].innerHTML.substring(7))
+            fetch('/api/booking/cancel', {
+                method: 'POST',
+                body: JSON.stringify({
+                    'id': e.id,
+                    'start': e.parentNode.getElementsByClassName('start')[0].innerHTML.substring(7)
+                }),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            }).then((res) => res.json())
+            .then((json) => {
+                if (json['status'] == 'Success') {
+                    e.parentNode.remove()
+                }
+            })
+        }
+    </script>
+  </body>
+</html>

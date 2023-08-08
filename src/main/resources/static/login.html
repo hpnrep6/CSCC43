@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyBnB</title>
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <side-bar id="sidebar">
+
+    </side-bar>
+    <main>
+        <h1>Login</h1>
+        <label>Username: </label>
+        <input id="username">
+        <br>
+        <label id="notif"></label>
+        <br>
+        <button onclick="login()">Login</button>
+        <script>
+            function login() {
+                fetch('/api/user/validate', {
+                  method: 'POST',
+                  body: JSON.stringify({
+                      'username': getVal('username')
+                  }),
+                  headers: {
+                      "Content-type": "application/json; charset=UTF-8"
+                  }
+                }).then((res) => res.json())
+                .then((json) => {
+                    console.log(json)
+                    if (json['status'] == 'Success') {
+                      document.cookie = 'username=' + getVal('username') + ';expires=18 Dec 2025 12:00:00 UTC'
+                      window.location = 'login.html'
+                    } else {
+                        document.getElementById('notif').innerHTML = json['status']
+                    }
+                })
+
+            }
+        </script>
+    </main>
+    <script src="sidebar.js"></script>
+  </body>
+</html>
